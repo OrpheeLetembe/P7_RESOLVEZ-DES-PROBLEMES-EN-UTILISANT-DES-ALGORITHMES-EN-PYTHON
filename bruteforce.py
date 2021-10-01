@@ -137,7 +137,6 @@ for i in range(len(best_investment)):
         list_op.append(list_actions[i]["name"])
 
 
-
 print(list_op)
 
 
