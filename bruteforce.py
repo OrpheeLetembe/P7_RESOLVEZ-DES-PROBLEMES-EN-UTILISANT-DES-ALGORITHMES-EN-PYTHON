@@ -1,31 +1,33 @@
 
 import csv
 
-lecteur = csv.DictReader(open("action_list.csv", "r"))
-tab_actions = [dict(ligne) for ligne in lecteur]
+reader = csv.DictReader(open("action_list.csv", "r"))
+tab_actions = [dict(line) for line in reader]
 
 
 n = len(tab_actions)
+
+
 tab_integer = [i for i in range(2**n)]
 
 tab_bin = [bin(i)[2:] for i in tab_integer]
 
-tab_combinaisons = ["0"*(n-len(k)) + k for k in tab_bin]
+tab_investments = ["0"*(n-len(k)) + k for k in tab_bin]
 
 
 celling = 500
-valid_combinations = []
+valid_investments = []
 
-for combinaison in tab_combinaisons:
-    cost_combinaison = 0
-    benefit_combinaison = 0
+for investment in tab_investments:
+    cost_investment = 0
+    benefit_investment = 0
     for i in range(n):
-        if combinaison[i] == "1":
-            cost_combinaison += int(tab_actions[i]["cost"])
-            benefit_combinaison += int(tab_actions[i]["cost"]) * (int(tab_actions[i]["benefit"]) / 100)
+        if investment[i] == "1":
+            cost_investment += int(tab_actions[i]["cost"])
+            benefit_investment += int(tab_actions[i]["cost"]) * (int(tab_actions[i]["benefit"]) / 100)
 
-    if cost_combinaison <= celling:
-        valid_combinations.append([combinaison, cost_combinaison, benefit_combinaison])
+    if cost_investment <= celling:
+        valid_investments.append([investment, cost_investment, benefit_investment])
 
 
 def fusion(tab_1, tab_2):
@@ -33,15 +35,13 @@ def fusion(tab_1, tab_2):
     i = 0
     j = 0
     while i < len(tab_1) and j < len(tab_2):
-        combi1 = tab_1[i]
-        benefit_combi1 = tab_1[i][2]
-        combi2 = tab_2[j]
-        benefit_combi2 = tab_2[j][2]
-        if benefit_combi1 <= benefit_combi2:
-            tab_fusion.append(combi1)
+        first_combination = tab_1[i]
+        second_combination = tab_2[j]
+        if first_combination[2] <= second_combination[2]:
+            tab_fusion.append(first_combination)
             i = i + 1
         else:
-            tab_fusion.append(combi2)
+            tab_fusion.append(second_combination)
             j = j + 1
         if i == len(tab_1):
             while j < len(tab_2):
@@ -65,60 +65,14 @@ def tri_fusion(tab, start, end):
         return fusion(tab_part1, tab_part2)
 
 
-print(tri_fusion(valid_combinations, 0, len(valid_combinations) - 1))
+best_investment = tri_fusion(valid_investments, 0, len(valid_investments) - 1)[-1]
+
+best_actions_list = []
+best_action_name = best_investment[0]
+for i in range(len(best_action_name)):
+    if best_action_name[i] == "1":
+        best_actions_list.append(tab_actions[i]["name"])
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-   
-
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+print("Best investment : actions: {}, Cost : {}€,  Benefit : {}€ ".format(best_actions_list, best_investment[1],
+                                                                          round(best_investment[2], 2)))
