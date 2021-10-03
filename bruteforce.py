@@ -6,7 +6,7 @@ CELLING = 500
 
 
 def file_conversion_to_dict(file):
-    reader = csv.DictReader(open(file, "r"))
+    reader = csv.DictReader(open(file, "r"), delimiter=";")
     return [dict(line) for line in reader]
 
 
@@ -80,10 +80,15 @@ def format_best_investment(investment, tab):
 
 def main():
     tab_actions = file_conversion_to_dict("action_list.csv")
+    print(tab_actions)
+
+
+    """
     tab_investments = dict_conversion_to_bin(tab_actions)
     valid_investments = get_valid_investment(tab_investments, tab_actions)
     best_investment = tri_fusion(valid_investments, 0, len(valid_investments) - 1)[-1]
     format_best_investment(best_investment, tab_actions)
+    """
 
 
 if __name__ == "__main__":
