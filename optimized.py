@@ -1,8 +1,10 @@
 #! /user/bin/env python3
 # -*- coding: utf-8 -*-
 
-from operator import itemgetter
+
 import csv
+
+CELLING = 500
 
 
 def convert_file_to_dict(file):
@@ -13,53 +15,58 @@ def convert_file_to_dict(file):
 def action_profit(tab):
     action_list = []
     for action in tab:
-        action["benefit"] = int(action["price"]) * int(action["profit"])/100
-        action_list.append(action)
+        if int(float(action["price"])) > 0:
+            action["benefit"] = abs(int(float(action["price"]))) * int(float(action["profit"]))/100
+            action_list.append(action)
     return action_list
 
 
-def get_best_investment(tab, celling):
-    tab_sorted = sorted(tab, key=itemgetter("benefit"), reverse=True)
-    total_investment = 0
-    best_investment = []
-
-    i = 0
-    while i < len(tab) and total_investment < celling:
-        action = tab_sorted[i]
-        price_action = tab_sorted[i]["price"]
-        if total_investment + int(price_action) <= celling:
-            best_investment.append(action)
-            total_investment += int(price_action)
-        i = i + 1
-
-    return best_investment
-
-
-def format_output(tab):
+def format_output(profit, tab):
+    print("Best investment :")
     cost = 0
-    actions_list =[]
-    profit = 0
     for action in tab:
-        cost += int(action["price"])
-        profit += action["benefit"]
-        print(action["name"] + " " + action["price"])
+        cost += int(float(action["price"]))
+        print(action["name"] + " " + str(action["price"]) + "€")
 
     print()
     print("Total cost : {}€".format(cost))
-    print("Profit : {}€".format(round(profit, 2)))
+    print("Profit : {}€".format(profit))
+
+
+def get_best_investment(celling, tab):
+
+    tab_matrix = [[0 for x in range(celling + 1)] for x in range(len(tab) + 1)]
+
+    for i in range(1, len(tab) + 1):
+        for price in range(1, celling + 1):
+            if int(float(tab[i-1]["price"])) <= price:
+                tab_matrix[i][price] = max(tab[i - 1]["benefit"]
+                                           + tab_matrix[i-1][price-(int(float(tab[i-1]["price"])))],
+                                           tab_matrix[i-1][price])
+            else:
+                tab_matrix[i][price] = tab_matrix[i-1][price]
+
+    w = celling
+    n = len(tab)
+    best_investment = []
+
+    while w >= 0 and n >= 0:
+        action = tab[n-1]
+        if tab_matrix[n][w] == tab_matrix[n-1][w-(int(float(action["price"])))] + action["benefit"]:
+            best_investment.append(action)
+            w -= int(float(action["price"]))
+
+        n -= 1
+
+    return format_output(round(tab_matrix[-1][-1], 2), best_investment)
 
 
 def main():
     print("Welcome to AlgoInvest&Trade")
-    tab_actions = convert_file_to_dict("actions_list.csv")
+    tab_actions = convert_file_to_dict("dataset2_Python+P7.csv")
     tab_benefit = action_profit(tab_actions)
-    best_investment = get_best_investment(tab_benefit, 500)
-    format_output(best_investment)
+    get_best_investment(CELLING, tab_benefit)
 
 
 if __name__ == "__main__":
     main()
-
-
-
-
