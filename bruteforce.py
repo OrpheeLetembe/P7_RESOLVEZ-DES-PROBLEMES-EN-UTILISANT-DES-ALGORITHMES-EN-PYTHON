@@ -1,6 +1,7 @@
 #! /user/bin/env python3
 # -*- coding: utf-8 -*-
 import csv
+import glob
 
 CELLING = 500
 
@@ -66,10 +67,11 @@ def get_best_investment(tab):
 
 
 def format_output(investment, tab):
-    """
+    """this function has for role to display the results of research of the best investment.
 
-    :param investment:
-    :param tab:
+    :param investment:the action list that provides the best profit,
+            the cost of the investment and the profit generated.
+    :param tab:Dictionary list with the name of the action, its price and its benefit as keys.
     
     """
     best_actions_list = []
