@@ -1,7 +1,7 @@
 #! /user/bin/env python3
 # -*- coding: utf-8 -*-
 
-
+import glob
 import csv
 
 CELLING = 500
@@ -22,7 +22,8 @@ def action_profit(tab):
 
 
 def format_output(profit, tab):
-    print("Best investment :")
+    print()
+    print("-- Best investment --")
     cost = 0
     for action in tab:
         cost += int(float(action["price"]))
@@ -61,11 +62,53 @@ def get_best_investment(celling, tab):
     return format_output(round(tab_matrix[-1][-1], 2), best_investment)
 
 
+def run_algo():
+    """this function asks the user for the dataset to be analyzed
+
+    :return: csv file
+    """
+    csvfiles = []
+    for file in glob.glob("*.csv"):
+        csvfiles.append(file)
+    for k, file in enumerate(csvfiles):
+        print(k + 1, file)
+
+    choice = input("Choose the dataset to be processed : ")
+    result = choice.isdigit()
+
+    if result:
+        file_choose = int(choice)
+
+        if file_choose in range(1, len(csvfiles) + 1):
+            tab_actions = convert_file_to_dict(str(csvfiles[file_choose - 1]))
+            tab_benefit = action_profit(tab_actions)
+            get_best_investment(CELLING, tab_benefit)
+
+        else:
+            print("You must choose a dataset from the list")
+    else:
+        print("You must choose a dataset from the list")
+
+
 def main():
-    print("Welcome to AlgoInvest&Trade")
-    tab_actions = convert_file_to_dict("dataset2_Python+P7.csv")
-    tab_benefit = action_profit(tab_actions)
-    get_best_investment(CELLING, tab_benefit)
+    print("--------- WELCOME TO ALGOINVEST&TRADE ----------")
+    menu = True
+    while menu:
+        print()
+        print("---- MENU ----")
+        print("1 RUN ALGORITHM")
+        print("2 EXIT")
+
+        choice = input("What do you want to do : ")
+        if choice == "1":
+            print()
+            print("--- Dataset list ---")
+            run_algo()
+        elif choice == "2":
+            print("-------- THANK YOU FOR USING ALGOINVEST&TRADE --------")
+            menu = False
+        else:
+            print("You must choose a menu item")
 
 
 if __name__ == "__main__":
