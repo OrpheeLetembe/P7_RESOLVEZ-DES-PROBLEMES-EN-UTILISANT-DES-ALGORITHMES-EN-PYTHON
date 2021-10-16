@@ -1,7 +1,7 @@
 #! /user/bin/env python3
 # -*- coding: utf-8 -*-
 import csv
-import glob
+
 
 CELLING = 500
 
@@ -67,7 +67,7 @@ def get_best_investment(tab):
 
 
 def format_output(investment, tab):
-    """this function has for role to display the results of research of the best investment.
+    """ This function has for role to display the results of research of the best investment.
 
     :param investment:the action list that provides the best profit,
             the cost of the investment and the profit generated.
@@ -88,13 +88,32 @@ def format_output(investment, tab):
     print("Profit : {}€".format(round(investment[2], 2)))
 
 
-def main():
-    print("Welcome to AlgoInvest&Trade")
-    tab_actions = convert_file_to_dict("actions_list.csv")
+def run_algo(csv_file):
+    tab_actions = convert_file_to_dict(str(csv_file))
     tab_investments = get_all_combination(tab_actions)
     valid_investments = get_valid_investment(tab_investments, tab_actions)
     best_investment = get_best_investment(valid_investments)
     format_output(best_investment, tab_actions)
+
+
+def main():
+    print("--------- WELCOME TO ALGOINVEST&TRADE ----------")
+    menu = True
+    while menu:
+        print()
+        print("---- MENU ----")
+        print("1 RUN ALGORITHM")
+        print("2 EXIT")
+
+        choice = input("What do you want to do : ")
+        if choice == "1":
+            print()
+            run_algo("actions_list.csv")
+        elif choice == "2":
+            print("-------- THANK YOU FOR USING ALGOINVEST&TRADE --------")
+            menu = False
+        else:
+            print("You must choose a menu item")
 
 
 if __name__ == "__main__":
