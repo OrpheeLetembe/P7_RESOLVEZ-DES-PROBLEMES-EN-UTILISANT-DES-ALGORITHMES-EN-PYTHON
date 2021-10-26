@@ -19,10 +19,11 @@ def action_profit(tab):
     :param tab: Dictionary list with the name of the action and its price as keys.
     :return list: Dictionary list with the name of the action, its price and its benefit as keys.
     """
+
     action_list = []
     for action in tab:
         if int(float(action["price"])) > 0:
-            action["benefit"] = abs(int(float(action["price"]))) * int(float(action["profit"]))/100
+            action["benefit"] = float(action["price"]) * (float(action["profit"]) / 100)
             action_list.append(action)
     return action_list
 
@@ -37,41 +38,47 @@ def format_output(profit, tab):
     print("-- Best investment --")
     cost = 0
     for action in tab:
-        cost += int(float(action["price"]))
+        cost += float(action["price"])
         print(action["name"] + " " + str(action["price"]) + "€")
 
     print()
-    print("Total cost : {}€".format(cost))
+    print("Total cost : {}€".format(round(cost, 2)))
     print("Profit : {}€".format(profit))
 
 
-def get_best_investment(celling, tab):
-    """ This function is used to determine the best investment by creating and filling the matrix.
+def get_best_investment(c, action_table):
+    """This function is used to determine the best investment by creating and filling the matrix.
 
-    :param celling:The investment limit.
-    :param tab:Dictionary list with the name of the action, its price and its benefit as keys.
+    :param c:The investment limit.
+    :param action_table:Dictionary list with the name of the action, its price and its benefit as keys.
     :return:The best profit and the share list to obtain it.
     """
-    tab_matrix = [[0 for x in range(celling + 1)] for x in range(len(tab) + 1)]
+    celling = c * 100
+    for a in action_table:
+        a["formatted_price"] = round(100 * float(a["price"]))
+    tab_matrix = [[0 for x in range(celling + 1)] for x in range(len(action_table) + 1)]
 
-    for i in range(1, len(tab) + 1):
-        for price in range(1, celling + 1):
-            if int(float(tab[i-1]["price"])) <= price:
-                tab_matrix[i][price] = max(tab[i - 1]["benefit"]
-                                           + tab_matrix[i-1][price-(int(float(tab[i-1]["price"])))],
-                                           tab_matrix[i-1][price])
+    for i in range(1, len(action_table) + 1):
+        for j in range(1, celling + 1):
+
+            if action_table[i - 1]["formatted_price"] <= j:
+                tab_matrix[i][j] = max(
+                    action_table[i - 1]["benefit"] + tab_matrix[i - 1][j - (action_table[i - 1]["formatted_price"])],
+                    tab_matrix[i-1][j])
             else:
-                tab_matrix[i][price] = tab_matrix[i-1][price]
+                tab_matrix[i][j] = tab_matrix[i-1][j]
 
     w = celling
-    n = len(tab)
+    n = len(action_table)
     best_investment = []
 
     while w >= 0 and n >= 0:
-        action = tab[n-1]
-        if tab_matrix[n][w] == tab_matrix[n-1][w-(int(float(action["price"])))] + action["benefit"]:
+        action = action_table[n - 1]
+        if tab_matrix[n][w] == (tab_matrix[n-1][w - action["formatted_price"]] + action["benefit"]) \
+                and w > action["formatted_price"]:
+
             best_investment.append(action)
-            w -= int(float(action["price"]))
+            w -= action["formatted_price"]
 
         n -= 1
 
@@ -79,10 +86,10 @@ def get_best_investment(celling, tab):
 
 
 def run_algo():
-    csvfiles = []
+    csv_files = []
     for file in glob.glob("*.csv"):
-        csvfiles.append(file)
-    for k, file in enumerate(csvfiles):
+        csv_files.append(file)
+    for k, file in enumerate(csv_files):
         print(k + 1, file)
 
     choice = input("Choose the dataset to be processed : ")
@@ -91,11 +98,10 @@ def run_algo():
     if result:
         file_choose = int(choice)
 
-        if file_choose in range(1, len(csvfiles) + 1):
-            tab_actions = convert_file_to_dict(str(csvfiles[file_choose - 1]))
+        if file_choose in range(1, len(csv_files) + 1):
+            tab_actions = convert_file_to_dict(str(csv_files[file_choose - 1]))
             tab_benefit = action_profit(tab_actions)
             get_best_investment(CELLING, tab_benefit)
-
         else:
             print("You must choose a dataset from the list")
     else:
